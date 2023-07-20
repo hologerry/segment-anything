@@ -5,13 +5,14 @@
 # LICENSE file in the root directory of this source tree.
 
 import numpy as np
-import cv2  # type: ignore
+import cv2
 
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 
 import argparse
 import json
 import os
+
 from tqdm import tqdm
 
 
@@ -60,9 +61,16 @@ def main(args: argparse.Namespace) -> None:
         for pair in tqdm(cur_job_pairs, desc=desc_str):
             bc_color_name = pair["output_filename"]  # bc stands for blended controlnet output
             mask_name = pair["mask_filename"]
-            # depth_name = pair["depth_filename"]
+
             bc_color_path = os.path.join(args.root_dir, bc_color_name)
             mask_path = os.path.join(args.root_dir, mask_name)
+            out_mask_path = bc_color_path.replace("bc_out", "sam_out")
+
+            if os.path.exists(out_mask_path) and os.path.getsize(out_mask_path) > 0:
+                continue
+
+            dir_name = os.path.dirname(out_mask_path)
+            os.makedirs(dir_name, exist_ok=True)
 
             image = cv2.imread(bc_color_path)
             if image is None:
@@ -76,9 +84,7 @@ def main(args: argparse.Namespace) -> None:
 
             max_iou_mask, max_iou = find_max_iou_mask(masks, gt_mask)
             # iou_str = f"{max_iou:.3f}".replace("0.", "")
-            out_mask_path = bc_color_path.replace("bc_out", "sam_out")
-            dir_name = os.path.dirname(out_mask_path)
-            os.makedirs(dir_name, exist_ok=True)
+
             max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
             cv2.imwrite(out_mask_path, max_iou_mask)
             # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
