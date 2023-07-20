@@ -1,1 +1,1 @@
-python scripts/amg_bc_all.py  --debug
+python amg_bc_all.py  --debug
