@@ -75,8 +75,8 @@ def main(args: argparse.Namespace) -> None:
             gt_mask = gt_mask[:, :, 0]
 
             max_iou_mask, max_iou = find_max_iou_mask(masks, gt_mask)
-            iou_str = f"{max_iou:.3f}".replace("0.", "")
-            out_mask_path = bc_color_path.replace(".png", f"_sam{iou_str}.png").replace("bc_out", "sam_out")
+            # iou_str = f"{max_iou:.3f}".replace("0.", "")
+            out_mask_path = bc_color_path.replace("bc_out", "sam_out")
             dir_name = os.path.dirname(out_mask_path)
             os.makedirs(dir_name, exist_ok=True)
             max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
