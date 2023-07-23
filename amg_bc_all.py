@@ -60,6 +60,8 @@ def main(args: argparse.Namespace) -> None:
 
         for pair in tqdm(cur_job_pairs, desc=desc_str):
             bc_color_name = pair["output_filename"]  # bc stands for blended controlnet output
+            if args.rand:
+                bc_color_name = bc_color_name.replace("bc_output", "bc_output_rand")
             mask_name = pair["mask_filename"]
 
             bc_color_path = os.path.join(args.root_dir, bc_color_name)
@@ -98,6 +100,7 @@ if __name__ == "__main__":
     parser.add_argument("--root_dir", type=str, default="../data/NOCS")
     parser.add_argument("--bc_pairs_json", type=str, default="nocs_bottle_bc_pairs_valid.json")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--rand", action="store_true")
 
     # ['default', 'vit_h', 'vit_l', 'vit_b']
     parser.add_argument("--model_type", type=str, default="default")

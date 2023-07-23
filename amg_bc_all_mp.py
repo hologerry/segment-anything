@@ -19,6 +19,8 @@ def one_job_process(args):
         cmd += f" --job_idx {args.job_idx} --job_num {args.job_num} --gpu_idx {gpu_idx} --gpu_num {args.gpu_num}"
         if args.sub_job_num > 0:
             cmd += f" --sub_job_idx {args.sub_job_idx} --sub_job_num {args.sub_job_num}"
+        if args.rand:
+            cmd += " --rand"
 
         cmds.append(cmd)
 
@@ -35,6 +37,8 @@ if __name__ == "__main__":
     parser.add_argument("--gpu_num", type=int, default=8)
     parser.add_argument("--sub_job_idx", type=int, default=-1)
     parser.add_argument("--sub_job_num", type=int, default=-1)
+
+    parser.add_argument("--rand", action="store_true")
 
     args = parser.parse_args()
 
