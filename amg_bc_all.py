@@ -86,10 +86,12 @@ def main(args: argparse.Namespace) -> None:
 
             max_iou_mask, max_iou = find_max_iou_mask(masks, gt_mask)
             # iou_str = f"{max_iou:.3f}".replace("0.", "")
-
-            max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
-            cv2.imwrite(out_mask_path, max_iou_mask)
-            # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
+            if max_iou >= 0.5 and max_iou_mask is not None:
+                max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
+                cv2.imwrite(out_mask_path, max_iou_mask)
+                # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
+            else:
+                print(f"Skipping '{bc_color_path}' with iou = {max_iou}")
 
     print("Done!")
 
