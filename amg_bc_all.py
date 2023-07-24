@@ -91,11 +91,7 @@ def main(args: argparse.Namespace) -> None:
                 cv2.imwrite(out_mask_path, max_iou_mask)
                 # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
             else:
-                if os.path.exists(out_mask_path):
-                    print(f"part [{args.part_idx}/{args.part_num}] Removing '{out_mask_path}' with iou = {max_iou}")
-                    os.remove(out_mask_path)
-                else:
-                    print(f"part [{args.part_idx}/{args.part_num}] Skipping '{bc_color_path}' with iou = {max_iou}")
+                print(f"part [{args.part_idx}/{args.part_num}] Skipping '{bc_color_path}' with iou = {max_iou}")
 
     print("Done!")
 
