@@ -76,7 +76,7 @@ def main(args: argparse.Namespace) -> None:
 
             image = cv2.imread(bc_color_path)
             if image is None:
-                print(f"Could not load '{bc_color_path}' as an image, skipping...")
+                print(f"Part [{args.part_idx}/{args.part_num}] Could not load '{bc_color_path}' as an image, skipping...")
                 continue
 
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -91,7 +91,7 @@ def main(args: argparse.Namespace) -> None:
                 cv2.imwrite(out_mask_path, max_iou_mask)
                 # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
             else:
-                print(f"Skipping '{bc_color_path}' with iou = {max_iou}")
+                print(f"part [{args.part_idx}/{args.part_num}] Skipping '{bc_color_path}' with iou = {max_iou}")
 
     print("Done!")
 
