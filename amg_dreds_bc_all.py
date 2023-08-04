@@ -66,12 +66,15 @@ def main(args: argparse.Namespace) -> None:
             bc_color_path = os.path.join(args.root_dir, bc_color_name)
             mask_path = os.path.join(args.root_dir, mask_name)
             out_mask_path = bc_color_path.replace("_bc_", "_sam_")
+            out_iou_path = out_mask_path.replace(".png", ".txt").replace("_sam_", "_iou_")
 
             if os.path.exists(out_mask_path) and os.path.getsize(out_mask_path) > 0:
                 continue
 
             dir_name = os.path.dirname(out_mask_path)
             os.makedirs(dir_name, exist_ok=True)
+            iou_dir_name = os.path.dirname(out_iou_path)
+            os.makedirs(iou_dir_name, exist_ok=True)
 
             image = cv2.imread(bc_color_path)
             if image is None:
@@ -88,8 +91,8 @@ def main(args: argparse.Namespace) -> None:
             if max_iou >= 0.5 and max_iou_mask is not None:
                 max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
                 cv2.imwrite(out_mask_path, max_iou_mask)
-                max_iou_txt = out_mask_path.replace(".png", ".txt")
-                with open(max_iou_txt, "w") as f:
+
+                with open(out_iou_path, "w") as f:
                     f.write(f"{max_iou:.6f}\n")
                 # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
             else:
