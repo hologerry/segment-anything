@@ -60,7 +60,7 @@ def main(args: argparse.Namespace) -> None:
         for pair in tqdm(cur_job_pairs, desc=desc_str):
             bc_color_name = pair["bc_filename"]  # bc stands for blended controlnet output
             if args.rand:
-                bc_color_name = bc_color_name.replace("seed12345", "seed_1")
+                bc_color_name = bc_color_name.replace("seed12345", "seed-1")
             mask_name = pair["mask_filename"]
 
             bc_color_path = os.path.join(args.root_dir, bc_color_name)
