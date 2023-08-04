@@ -7,7 +7,7 @@
 import numpy as np
 import cv2
 
-from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
+from segment_anything import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
 
 import argparse
 import json
@@ -16,29 +16,21 @@ import os
 from tqdm import tqdm
 
 
-def find_max_iou_mask(mask_data_list, gt_mask):
-    max_iou = 0
-    max_iou_mask = None
-    masks = [mask_data["segmentation"] * 255 for mask_data in mask_data_list]
-    for mask in masks:
-        iou = np.sum(np.logical_and(mask, gt_mask)) / np.sum(np.logical_or(mask, gt_mask))
-        if iou > max_iou:
-            max_iou = iou
-            max_iou_mask = mask
-    return max_iou_mask, max_iou
+def cal_iou(mask, gt_mask):
+    iou = np.sum(np.logical_and(mask, gt_mask)) / np.sum(np.logical_or(mask, gt_mask))
+    return iou
 
 
 def main(args: argparse.Namespace) -> None:
     print("Loading model...")
     sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
     _ = sam.to(device=args.device)
-    output_mode = "coco_rle" if args.convert_to_rle else "binary_mask"
-    generator = SamAutomaticMaskGenerator(sam, output_mode=output_mode)
+    predictor = SamPredictor(sam)
 
     splits = ["train", "val", "test"]
     if args.debug:
         splits = ["val"]
-
+    print("predicting...")
     all_filenames_json = os.path.join(args.root_dir, args.bc_pairs_json)
     with open(all_filenames_json, "r") as f:
         data_dict = json.load(f)
@@ -78,22 +70,41 @@ def main(args: argparse.Namespace) -> None:
 
             image = cv2.imread(bc_color_path)
             if image is None:
-                print(f"Part [{args.part_idx}/{args.part_num}] Could not load '{bc_color_path}' as an image, skipping...")
+                print(
+                    f"Part [{args.part_idx}/{args.part_num}] Could not load '{bc_color_path}' as an image, skipping..."
+                )
                 continue
 
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            masks = generator.generate(image)
             gt_mask = cv2.imread(mask_path)
             gt_mask = gt_mask[:, :, 0]
+            gt_bbox = cv2.boundingRect(gt_mask)
+            x, y, w, h = gt_bbox
+            x1 = max(0, x - 5)
+            y1 = max(0, y - 5)
+            x2 = min(image.shape[1], x + w + 5)
+            y2 = min(image.shape[0], y + h + 5)
+            input_box = np.array([x1, y1, x2, y2])
 
-            max_iou_mask, max_iou = find_max_iou_mask(masks, gt_mask)
+            predictor.set_image(image)
 
-            max_iou_mask = np.tile(max_iou_mask[:, :, None], (1, 1, 3))
-            cv2.imwrite(out_mask_path, max_iou_mask)
+            mask, _, _ = predictor.predict(
+                point_coords=None,
+                point_labels=None,
+                box=input_box[None, :],
+                multimask_output=False,
+            )
+            # print(f"mask {mask.shape} min {mask.min()} max {mask.max()}")
+
+            iou = cal_iou(mask, gt_mask)
+
+            mask = mask.astype(np.uint8)[0, ...] * 255
+            mask = np.tile(mask[:, :, None], (1, 1, 3))
+            cv2.imwrite(out_mask_path, mask)
 
             with open(out_iou_path, "w") as f:
-                f.write(f"{max_iou:.6f}\n")
-            # print(f"Saved mask to '{out_mask_path}' with iou = {max_iou}")
+                f.write(f"{iou:.6f}\n")
+            # print(f"Saved mask to '{out_mask_path}' with iou = {iou}")
 
     print("Done!")
 
@@ -107,8 +118,8 @@ if __name__ == "__main__":
     parser.add_argument("--rand", action="store_true")
 
     # ['default', 'vit_h', 'vit_l', 'vit_b']
-    parser.add_argument("--model_type", type=str, default="vit_l")
-    parser.add_argument("--checkpoint", type=str, default="pretrained_models/sam_vit_l_0b3195.pth")
+    parser.add_argument("--model_type", type=str, default="vit_h")
+    parser.add_argument("--checkpoint", type=str, default="pretrained_models/sam_vit_h_4b8939.pth")
     parser.add_argument("--device", type=str, default="cuda", help="The device to run generation on.")
 
     parser.add_argument("--convert-to-rle", action="store_true")
