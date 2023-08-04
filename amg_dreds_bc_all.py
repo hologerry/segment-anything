@@ -107,8 +107,8 @@ if __name__ == "__main__":
     parser.add_argument("--rand", action="store_true")
 
     # ['default', 'vit_h', 'vit_l', 'vit_b']
-    parser.add_argument("--model_type", type=str, default="vit_l")
-    parser.add_argument("--checkpoint", type=str, default="pretrained_models/sam_vit_l_0b3195.pth")
+    parser.add_argument("--model_type", type=str, default="vit_b")
+    parser.add_argument("--checkpoint", type=str, default="pretrained_models/sam_vit_b_01ec64.pth")
     parser.add_argument("--device", type=str, default="cuda", help="The device to run generation on.")
 
     parser.add_argument("--convert-to-rle", action="store_true")
