@@ -22,7 +22,7 @@ def cal_iou(mask, gt_mask):
 
 
 def main(args: argparse.Namespace) -> None:
-    print("Loading model...")
+    print(f"Loading {args.model_type} model...")
     sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
     _ = sam.to(device=args.device)
     predictor = SamPredictor(sam)
