@@ -113,7 +113,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--root_dir", type=str, default="../data/DREDS/DREDS-CatKnown")
-    parser.add_argument("--bc_pairs_json", type=str, default="dreds_bottle_bc_pairs.json")
+    # parser.add_argument("--bc_pairs_json", type=str, default="dreds_bottle_bc_pairs.json")
+    parser.add_argument("--bc_pairs_json", type=str, default="dreds_mug_bc_pairs.json")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--rand", action="store_true")
 
