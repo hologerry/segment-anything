@@ -15,7 +15,7 @@ def one_job_process(args):
     available_gpus = torch.cuda.device_count()
     cmds = []
     for gpu_idx in range(args.gpu_num):
-        cmd = f"export CUDA_VISIBLE_DEVICES={gpu_idx%available_gpus} && python amg_dreds_bc_all.py"
+        cmd = f"export CUDA_VISIBLE_DEVICES={gpu_idx%available_gpus} && python amg_bc.py"
         cmd += f" --job_idx {args.job_idx} --job_num {args.job_num} --gpu_idx {gpu_idx} --gpu_num {args.gpu_num}"
         if args.sub_job_num > 0:
             cmd += f" --sub_job_idx {args.sub_job_idx} --sub_job_num {args.sub_job_num}"

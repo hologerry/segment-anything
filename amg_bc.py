@@ -7,7 +7,7 @@
 import numpy as np
 import cv2
 
-from segment_anything import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
+from segment_anything import SamPredictor, sam_model_registry
 
 import argparse
 import json
@@ -27,9 +27,13 @@ def main(args: argparse.Namespace) -> None:
     _ = sam.to(device=args.device)
     predictor = SamPredictor(sam)
 
-    splits = ["train", "val", "test"]
+    # splits = ["train", "val", "test"]
+    # if args.debug:
+    #     splits = ["val"]
+    splits = ["train", "test"]
     if args.debug:
-        splits = ["val"]
+        splits = ["test"]
+
     print("predicting...")
     all_filenames_json = os.path.join(args.root_dir, args.bc_pairs_json)
     with open(all_filenames_json, "r") as f:
@@ -112,9 +116,11 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--root_dir", type=str, default="../data/DREDS/DREDS-CatKnown")
+    # parser.add_argument("--root_dir", type=str, default="../data/DREDS/DREDS-CatKnown")
     # parser.add_argument("--bc_pairs_json", type=str, default="dreds_bottle_bc_pairs.json")
-    parser.add_argument("--bc_pairs_json", type=str, default="dreds_mug_bc_pairs.json")
+    # parser.add_argument("--bc_pairs_json", type=str, default="dreds_mug_bc_pairs.json")
+    parser.add_argument("--root_dir", type=str, default="../bot_render_output")
+    parser.add_argument("--bc_pairs_json", type=str, default="bot_render_output_bottle_bc_pairs.json")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--rand", action="store_true")
 
